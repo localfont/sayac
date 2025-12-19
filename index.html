@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Gün Sayacı</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background:#0f172a;
+      color:#fff;
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .box {
+      background:#020617;
+      border-radius:16px;
+      padding:24px;
+      max-width:420px;
+      width:100%;
+    }
+  </style>
+</head>
+<body>
+
+<div class="box text-center shadow">
+  <h5>Ara Tatile Kalan Süre</h5>
+  <button class="btn btn-primary mt-3" onclick="start()">Kalıcı Bildirimi Başlat</button>
+</div>
+
+<script>
+async function start() {
+  if (!("serviceWorker" in navigator)) {
+    alert("Service Worker desteklenmiyor");
+    return;
+  }
+
+  const perm = await Notification.requestPermission();
+  if (perm !== "granted") {
+    alert("Bildirim izni gerekli");
+    return;
+  }
+
+  const reg = await navigator.serviceWorker.register("/sw.js");
+  const res = await fetch("/target");
+  const data = await res.json();
+
+  navigator.serviceWorker.ready.then(r => {
+    r.active.postMessage({
+      type: "START",
+      target: data.target
+    });
+  });
+
+  alert("Kalıcı bildirim başlatıldı");
+}
+</script>
+
+</body>
+</html>
